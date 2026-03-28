@@ -1,0 +1,102 @@
+ show databases;
++--------------------+
+| Database           |
++--------------------+
+| db3                |
+| db4                |
+| db5                |
+| db6                |
+| edb                |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+9 rows in set (0.04 sec)
+
+Database changed
+Query OK, 0 rows affected (0.51 sec)r_id int primary key auto_increment,name varchar(100),city varchar(100),credits decimal(10,2));
+
+mysql> INSERT INTO Customer (name, city, credits) VALUES ('John', 'Delhi', 1500.50), ('Anita Nair', 'Kochi', 2300.75), ('Vikram Singh', 'Mumbai', 1800.00), ('Sneha Pillai', 'Thiruvananthapuram', 2750.25)
+, ('Arjun Reddy', 'Hyderabad', 3200.00);
+Query OK, 5 rows affected (0.11 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select * from Customer;
++-------------+--------------+--------------------+---------+
+| customer_id | name         | city               | credits |
++-------------+--------------+--------------------+---------+
+|           1 | John         | Delhi              | 1500.50 |
+|           2 | Anita Nair   | Kochi              | 2300.75 |
+|           3 | Vikram Singh | Mumbai             | 1800.00 |
+|           4 | Sneha Pillai | Thiruvananthapuram | 2750.25 |
+|           5 | Arjun Reddy  | Hyderabad          | 3200.00 |
++-------------+--------------+--------------------+---------+
+5 rows in set (0.00 sec)
+
+
+mysql> DELIMITER $$
+mysql> 
+mysql> CREATE PROCEDURE GetCustomerDetailsByName(IN customer_name VARCHAR(100))
+    -> BEGIN
+    ->     SELECT * FROM Customer
+    ->     WHERE name = customer_name;
+    -> END $$
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> call GetCustomerDetailsByName('John');
++-------------+------+-------+---------+
+| customer_id | name | city  | credits |
++-------------+------+-------+---------+
+|           1 | John | Delhi | 1500.50 |
++-------------+------+-------+---------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+
+mysql> Delimiter //
+mysql> CREATE PROCEDURE DetermineMembership(IN customer_credits DECIMAL(10,2),
+    -> OUT membership_level VARCHAR(50))
+    -> BEGIN
+    -> IF customer_credits >= 5000 THEN
+    -> SET membership_level = 'Membership Platinum';
+    -> ELSEIF customer_credits >= 1000 THEN
+    -> SET membership_level = 'Gold';
+    -> ELSE
+    -> SET membership_level = 'Silver';
+    -> END IF;
+    -> END //
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> Delimiter ;
+
+mysql> CALL DetermineMembership(6000.00, @membership1);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL DetermineMembership(3500.00, @membership2);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL DetermineMembership(800.00, @membership3);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL DetermineMembership(10000.00, @membership4);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> SELECT 
+    -> @membership1 AS John_Membership,
+    -> @membership2 AS Alice_Membership,
+    -> @membership3 AS Bob_Membership,
+    -> @membership4 AS Emma_Membership;
++---------------------+------------------+----------------+---------------------+
+| John_Membership     | Alice_Membership | Bob_Membership | Emma_Membership     |
++---------------------+------------------+----------------+---------------------+
+| Membership Platinum | Gold             | Silver         | Membership Platinum |
++---------------------+------------------+----------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> 
+
