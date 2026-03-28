@@ -376,3 +376,59 @@ mysql> SELECT * FROM emp_details;
 
 mysql> 
 
+
+
+CREATE TABLE student_marks (student_id INT PRIMARY KEY,name VARCHAR(50),sub1 INT,sub2 INT,sub3 INT,sub4 INT,sub5 INT,total INT,per_marks DECIMAL(5,2),grade VARCHAR(20));
+Query OK, 0 rows affected (0.86 sec)
+
+mysql> INSERT INTO student_marks (student_id, name, sub1, sub2, sub3, sub4, sub5)
+    -> VALUES
+    -> (1, 'John', 0, 0, 0, 0, 0),
+    -> (2, 'Alice', 70, 80, 65, 75, 85),
+    -> (3, 'Bob', 60, 65, 70, 55, 80),
+    -> (4, 'Emma', 90, 85, 95, 88, 92);
+Query OK, 4 rows affected (0.11 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> delimiter //
+mysql> CREATE TRIGGER CalculateStudentDetails
+    -> BEFORE UPDATE ON student_marks
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     SET NEW.total = NEW.sub1 + NEW.sub2 + NEW.sub3 + NEW.sub4 + NEW.sub5;
+    ->     SET NEW.per_marks = NEW.total / 5;
+    ->     IF NEW.per_marks >= 90 THEN
+    ->         SET NEW.grade = 'EXCELLENT';
+    ->     ELSEIF NEW.per_marks >= 75 THEN
+    ->         SET NEW.grade = 'VERY GOOD';
+    ->     ELSEIF NEW.per_marks >= 60 THEN
+    ->         SET NEW.grade = 'GOOD';
+    ->     ELSEIF NEW.per_marks >= 40 THEN
+    ->         SET NEW.grade = 'AVERAGE';
+    ->     ELSE
+    ->         SET NEW.grade = 'NOT PROMOTED';
+    ->     END IF;
+    -> END //
+Query OK, 0 rows affected (0.18 sec)
+
+mysql> delimiter ;
+mysql> UPDATE student_marks
+    -> SET sub1 = 80, sub2 = 85, sub3 = 90, sub4 = 75, sub5 = 85
+    -> WHERE student_id = 1;
+Query OK, 1 row affected (0.07 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> 
+mysql> SELECT * FROM student_marks;
++------------+-------+------+------+------+------+------+-------+-----------+-----------+
+| student_id | name  | sub1 | sub2 | sub3 | sub4 | sub5 | total | per_marks | grade     |
++------------+-------+------+------+------+------+------+-------+-----------+-----------+
+|          1 | John  |   80 |   85 |   90 |   75 |   85 |   415 |     83.00 | VERY GOOD |
+|          2 | Alice |   70 |   80 |   65 |   75 |   85 |  NULL |      NULL | NULL      |
+|          3 | Bob   |   60 |   65 |   70 |   55 |   80 |  NULL |      NULL | NULL      |
+|          4 | Emma  |   90 |   85 |   95 |   88 |   92 |  NULL |      NULL | NULL      |
++------------+-------+------+------+------+------+------+-------+-----------+-----------+
+4 rows in set (0.00 sec)
+
+
+
