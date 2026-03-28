@@ -100,3 +100,44 @@ mysql> SELECT
 
 mysql> 
 
+
+CREATE TABLE Employee (emp_id INT PRIMARY KEY AUTO_INCREMENT, emp_name VARCHAR(100), department VARCHAR(100), salary DECIMAL(10,2));
+Query OK, 0 rows affected (0.65 sec)
+mysql> INSERT INTO Employee (emp_name, department, salary) VALUES ('John', 'HR', 30000), ('Alice', 'IT', 45000), ('Bob', 'Finance', 40000), ('John', 'Sales', 35000), ('Emma', 'IT', 50000);
+Query OK, 5 rows affected (0.09 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+
+mysql> delimiter //
+mysql> CREATE FUNCTION CountEmployeesWithName(employee_name VARCHAR(100))
+-> RETURNS INT
+-> DETERMINISTIC
+-> BEGIN
+->     DECLARE employee_count INT;
+->     SELECT COUNT(*) INTO employee_count
+->     FROM Employee
+->     WHERE emp_name = employee_name;
+->     RETURN employee_count;
+-> END //
+Query OK, 0 rows affected (0.16 sec)
+mysql> DELIMITER ;
+mysql> SELECT CountEmployeesWithName('John');
++--------------------------------+
+| CountEmployeesWithName('John') |
++--------------------------------+
+|                              2 |
++--------------------------------+
+1 row in set (0.00 sec)
+mysql> select * from Employee;
++--------+----------+------------+----------+
+| emp_id | emp_name | department | salary   |
++--------+----------+------------+----------+
+|      1 | John     | HR         | 30000.00 |
+|      2 | Alice    | IT         | 45000.00 |
+|      3 | Bob      | Finance    | 40000.00 |
+|      4 | John     | Sales      | 35000.00 |
+|      5 | Emma     | IT         | 50000.00 |
++--------+----------+------------+----------+
+5 rows in set (0.00 sec)
+React
+
