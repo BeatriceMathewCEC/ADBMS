@@ -291,3 +291,53 @@ mysql> SELECT * FROM Bill;
 5 rows in set (0.00 sec)
 
 
+
+
+CREATE TABLE Emp_history (
+    ->     employee_id INT,
+    ->     name VARCHAR(100),
+    ->     department VARCHAR(100),
+    ->     salary DECIMAL(10,2),
+    ->     date_of_deletion DATETIME,
+    ->     UNIQUE(employee_id)  -- ensures one record per employee
+    -> );
+    
+
+Query OK, 0 rows affected (0.59 sec)
+
+mysql> DROP TRIGGER IF EXISTS MoveDeletedEmployeeToHistory;
+    -
+
+Query OK, 0 rows affected, 1 warning (0.04 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER MoveDeletedEmployeeToHistory
+    -> AFTER DELETE ON Employee
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     -- Insert into history, ignore if employee_id already exists
+    ->     INSERT IGNORE INTO Emp_history (employee_id, name, department, salary, date_of_deletion)
+    ->     VALUES (OLD.emp_id, OLD.emp_name, OLD.department, OLD.salary, NOW());
+    -> END //
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> 
+mysql> DELIMITER ;
+
+mysql> DELETE FROM Employee WHERE emp_id = 2;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+
+mysql> DELETE FROM Employee WHERE emp_id = 3;
+Query OK, 1 row affected (0.10 sec)
+
+mysql> SELECT * FROM Emp_history;
++-------------+------+------------+----------+---------------------+
+| employee_id | name | department | salary   | date_of_deletion    |
++-------------+------+------------+----------+---------------------+
+|           3 | Bob  | Finance    | 40000.00 | 2026-03-26 14:48:20 |
++-------------+------+------------+----------+---------------------+
+1 row in set (0.00 sec)
+
+
