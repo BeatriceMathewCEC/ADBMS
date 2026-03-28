@@ -341,3 +341,38 @@ mysql> SELECT * FROM Emp_history;
 1 row in set (0.00 sec)
 
 
+
+
+CREATE TABLE emp_details (emp_id INT PRIMARY KEY AUTO_INCREMENT, first_name VARCHAR(50), last_name VARCHAR(50), job_id VARCHAR(10), salary DECIMAL(10,2));
+Query OK, 0 rows affected (1.60 sec)
+
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER BeforeInsertEmpDetails
+    -> BEFORE INSERT ON emp_details
+    -> FOR EACH ROW
+    -> BEGIN
+    ->   
+    ->     SET NEW.first_name = TRIM(NEW.first_name);
+    ->     SET NEW.last_name = TRIM(NEW.last_name);
+    ->     
+    ->     SET NEW.job_id = UPPER(NEW.job_id);
+    -> END //
+Query OK, 0 rows affected (0.15 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> INSERT INTO emp_details (FIRST_NAME, LAST_NAME, JOB_ID) 
+    -> VALUES ('Michael ', 'Smith ', 'analyst');
+Query OK, 1 row affected (0.08 sec)
+
+mysql> SELECT * FROM emp_details;
++--------+------------+-----------+---------+--------+
+| emp_id | first_name | last_name | job_id  | salary |
++--------+------------+-----------+---------+--------+
+|      1 | Michael    | Smith     | ANALYST |   NULL |
++--------+------------+-----------+---------+--------+
+1 row in set (0.00 sec)
+
+mysql> 
+
